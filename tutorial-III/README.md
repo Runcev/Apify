@@ -18,7 +18,7 @@
 > You have to use Node.js 12 + Chrome + Xvfb on Debian docker image. It opens non-headless Chrome.
 
 ### - Imagine the server/instance the container is running on has a 32 GB, 8-core CPU. What would be the most performant (speed/cost) memory allocation for CheerioCrawler? (Hint: NodeJS processes cannot use user-created threads)
-> If you have to scrape a single simple page, you have to set up memory to 128 - 512 MB for Cheerio, 1024 MB for Puppeteer.
+> CPU's should be allocated(4096 MB of memory = 1 full CPU)
 
 ### - What is the difference between RUN and CMD Dockerfile commands?
 - RUN lets you execute commands inside of your Docker image.

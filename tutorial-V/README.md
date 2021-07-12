@@ -1,33 +1,24 @@
-# My beautiful actor
+# Tutorial V - Tasks, Storage, Apify API & Client
 
-The `README.md` file contains a documentation what your actor does and how to use it,
-which is then displayed in the app or Apify Store. It's always a good
-idea to write a good `README.md`, in a few months not even you
-will remember all the details about the actor.
+#### Quiz
 
-You can use [Markdown](https://www.markdownguide.org/cheat-sheet)
-language for rich formatting.
+### - What is the relationship between actor and task?
+> Actor tasks is like a configuration for your actor. You can configure specific parameters, inputs and run actor with it.
 
-## Documentation reference
+### - What are the differences between default (unnamed) and named storage? Which one would you choose for everyday usage?
+> Unnamed datasets expire after 14 days unless otherwise specified
+> Named datasets retained indefinitely
+> If you want to retain some data, you have to select named storage. In use cases when it isn't required, you have to select the unnamed storage.
 
-- [Apify SDK](https://sdk.apify.com/)
-- [Apify Actor documentation](https://docs.apify.com/actor)
-- [Apify CLI](https://docs.apify.com/cli)
+### - What is the relationship between the Apify API and the Apify client? Are there any significant differences?
+> Apify Api is a REST api, Apify client is an implementation of this API, and it implements exponential backoff which helps with random API outages.
 
-## Writing a README
+### - Is it possible to use a request queue for deduplication of product IDs? If yes, how would you do that?
+> The request queue manages the process of adding the requests so that no duplicates added.
 
-See our tutorial on [writing READMEs for your actors](https://help.apify.com/en/articles/2912548-how-to-write-great-readme-for-your-actors) if you need more inspiration.
+### - What is data retention and how does it work for all types of storage (default and named)?
+> Unnamed default storages have limited retention time (14 days). Named storages persisted indefinitely.
+> It also depends on the selected service package
 
-### Table of contents
-
-If your README requires a table of contents, use the template below and make sure to keep the `<!-- toc start -->` and `<!-- toc end -->` markers.
-
-<!-- toc start -->
-- Introduction
-- Use Cases
-  - Case 1
-  - Case 2
-- Input
-- Output
-- Miscellaneous
- <!-- toc end -->
+### - How do you pass input when running an actor or task via the API?
+> Via request body.
