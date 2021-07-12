@@ -1,0 +1,23 @@
+{
+    "title": "Amazon actor input schema",
+    "description": "Amazon actor input schema",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "keyword": {
+            "title": "Keyword",
+            "type": "string",
+            "description": "Keyword",
+            "prefill": "iPhone 12",
+            "editor": "javascript"
+        },
+        "maxItems": {
+            "title": "Max items",
+            "type": "integer",
+            "description": "Max items",
+            "default": 5
+        }
+    },
+    "required": ["keyword", "maxItems"]
+}
+

@@ -1,0 +1,8 @@
+{
+  "TASK_ID": "QKa9dYEEXcnVHYen7",
+  "RUN_TASK_URL": "https://api.apify.com/v2/actor-tasks/#taskId/runs",
+  "GET_RUN_URL": "https://api.apify.com/v2/actor-runs/#runId",
+  "GET_DATASET_ITEMS_URL": "https://api.apify.com/v2/datasets/#datasetId/items",
+  "OUTPUT_FORMAT": "csv",
+  "OUTPUT_CONTENT_TYPE": "text/csv"
+}

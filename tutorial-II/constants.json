@@ -1,0 +1,16 @@
+{
+    "PRODUCT_URL": "https://www.amazon.com/dp",
+    "SEARCH_URL": "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=",
+    "OFFER_URL": "https://www.amazon.com/gp/offer-listing",
+    "LABEL_SEARCH": "search",
+    "LABEL_PRODUCT": "product",
+    "LABEL_OFFER": "offer",
+    "PROXY_GROUP": "BUYPROXIES94952",
+    "DATASET_NAME": "offers-per-product",
+    "MAX_USAGE_COUNT": 1,
+    "ERROR_SCORE": 1,
+    "MAX_CONCURRENCY": 1,
+    "INTERVAL_OBJECT_LOG": 20000,
+    "TIMEOUT_WAIT_FOR_SELECTOR": 6000,
+    "AMAZON_URL_ORIGIN": "https://www.amazon.com"
+}

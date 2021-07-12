@@ -1,0 +1,33 @@
+{
+  "title": "Input schema for the export-csv actor.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "memory": {
+      "title": "Memory",
+      "type": "integer",
+      "description": "Memory for call new actor",
+      "default": 4096
+    },
+    "useClient": {
+      "title": "UseClient",
+      "type": "boolean",
+      "description": "useClient option for called actor",
+      "default": false
+    },
+    "fields": {
+      "title": "Fields",
+      "type": "array",
+      "description": "Fields which will be output to csv",
+      "default": ["title", "url", "fullPrice"],
+      "editor": "json"
+    },
+    "maxItems": {
+      "title": "MaxItems",
+      "type": "integer",
+      "description": "Max items of called actor result",
+      "default": 10
+    }
+  },
+  "required": ["memory", "useClient", "fields", "maxItems"]
+}
