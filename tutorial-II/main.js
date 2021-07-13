@@ -10,10 +10,11 @@ Apify.main(async () => {
     const proxyConfiguration = await Apify.createProxyConfiguration({
         countryCode: 'US',
     });
-    await requestQueue.addRequest({ url: `https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${input.keyword.keyword}`,
+    await requestQueue.addRequest({ url: `https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${input.keyword}`,
         userData: { label: 'START' } });
 
     const crawler = new Apify.PuppeteerCrawler({
+        maxRequestsPerCrawl: 50,
         requestQueue,
         proxyConfiguration,
         maxConcurrency: 1,

@@ -5,7 +5,7 @@ const { utils: { log } } = Apify;
 
 exports.handleStart = async (context, requestQueue) => {
     const { page } = context;
-    await sleep(3000);
+    //await sleep(3000);
     const ASINs = await page.$$eval('div.s-asin', (Asin) => {
         return Asin.map((asin) => asin.getAttribute('data-asin'));
     });
@@ -18,7 +18,7 @@ exports.handleProduct = async (context, requestQueue) => {
     const { request, page } = context;
 
     log.info('Collecting data enqueueing links to  offers page');
-    await sleep(3000);
+    //await sleep(3000);
     if (await page.$('#productTitle')) {
         const asin = request.url.split('/').pop();
         console.log(asin);
@@ -52,8 +52,8 @@ exports.handleOffers = async (context, requestQueue, dataset) => {
     const { request, page, session } = context;
 
     log.info('Getting data from offers page');
-    let formatedData;
-    await sleep(10000);
+    let formattedData;
+    //await sleep(10000);
     console.log(request.url);
     if (await page.$('#aod-offer')) {
         const data = await page.$$eval('#aod-offer', (element) => {
@@ -76,10 +76,10 @@ exports.handleOffers = async (context, requestQueue, dataset) => {
             return scrapedData;
         });
         if (data.length > 0) {
-            formatedData = data.map((el) => {
+            formattedData = data.map((el) => {
                 return { ...request.userData.data, ...el };
             });
-            await dataset.pushData(formatedData);
+            await dataset.pushData(formattedData);
         } else {
             await dataset.pushData({ ...request.userData.data, orderInfo: 'not exist' });
         }
