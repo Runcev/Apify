@@ -1,19 +1,37 @@
 const Apify = require('apify');
-const ApifyClient = require('apify-client');
 
-const { groupByAndFilter } = require('./src/groupByAndSort');
-
-const env = Apify.getEnv();
-const client = new ApifyClient({
-    token: env.token,
-});
-
+const { utils: { log } } = Apify;
 Apify.main(async () => {
-    const input = await Apify.getInput();
-    const { resource } = input;
-    const { defaultDatasetId } = resource;
-    const { items } = await client.dataset(defaultDatasetId).listItems();
-    const groupedAndSortedItems = groupByAndFilter(items, 'ASIN', 'fullPrice', 'number');
+    log.info('Actor starts');
+    const dataset = await Apify.openDataset('K4JmhB7d9CdUHLgE4');
+    const offersData = await dataset.getData();
+    const datasetItems = offersData.items;
+    log.info(datasetItems);
+    const cheapestOption = [];
+    datasetItems.forEach((item) => {
+        if (item.price) {
+            item.price = Number(item.price.substring(1));
+        }
+    });
+    const offersUrls = [];
+    datasetItems.forEach((item) => {
+        if (item.price) {
+            if (!offersUrls.includes(item.url)) {
+                offersUrls.push(item.url);
+            }
+        }
+    });
+    offersUrls.forEach((item) => {
+        const filteredOffers = datasetItems.filter((obj) => {
+            return obj.url === item;
+        });
+        const minValue = filteredOffers.reduce((prev, curr) => {
+            return prev.price < curr.price ? prev : curr;
+        });
+        minValue.price = `$${minValue.price}`;
+        cheapestOption.push(minValue);
+    });
 
-    await Apify.pushData(Object.values(groupedAndSortedItems));
+    log.info(`Cheapest option  ${cheapestOption}`);
+    await Apify.pushData(cheapestOption);
 });
