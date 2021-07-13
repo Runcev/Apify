@@ -1,120 +1,50 @@
 const Apify = require('apify');
+const { handleStart, handleProduct, handleOffers } = require('./src/routes');
 
-const {
-    SEARCH_URL,
-    LABEL_SEARCH,
-    LABEL_PRODUCT,
-    LABEL_OFFER,
-    PROXY_GROUP,
-    DATASET_NAME: datasetName,
-    MAX_USAGE_COUNT,
-    ERROR_SCORE,
-    MAX_CONCURRENCY,
-    INTERVAL_OBJECT_LOG,
-} = require('./constants.json');
-
-const { handleSearch, handleProductPage, handleOffersPage } = require('./src/routes');
-const { getDatasetWithData } = require('./src/getDataset');
-const { checkTitle } = require('./src/CheckTitle');
-
-const {
-    utils: { log },
-} = Apify;
+const { utils: { log } } = Apify;
 
 Apify.main(async () => {
-    const { keyword } = await Apify.getInput();
-
-    if (!keyword || typeof keyword !== 'string') {
-        throw new Error('Wrong INPUT: keyword has to be an string!');
-    }
-
-    const sources = [{ url: `${SEARCH_URL}${keyword}`, userData: { label: 'search' } }];
-
-    const arrayFromGetDatasetWithData = await getDatasetWithData({
-        datasetName,
-    });
-    const offersPerProductDataset = arrayFromGetDatasetWithData[0];
-    let offersPerProduct = arrayFromGetDatasetWithData[1] || {};
-
-    setInterval(() => {
-        log.info(`Product offer: ${JSON.stringify(offersPerProduct)}`);
-    }, INTERVAL_OBJECT_LOG);
-
-    const requestList = await Apify.openRequestList('amazon-urls', sources);
+    const dataset = await Apify.openDataset('Amazon-scrape-lesson-2');
     const requestQueue = await Apify.openRequestQueue();
+    const input = await Apify.getInput();
     const proxyConfiguration = await Apify.createProxyConfiguration({
-        groups: [PROXY_GROUP],
+        countryCode: 'US',
     });
-
-    async function handleFailedRequestFunction({ request }) {
-        log.error(`Request ${request.url} failed too many times`);
-        await Apify.pushData({
-            '#debug': Apify.utils.createRequestDebugInfo(request),
-        });
-    }
-
-    async function handlePageFunction({ request, page, session }) {
-        const {
-            userData: { label },
-            url,
-        } = request;
-        log.info(`Processing ${url}...`);
-
-        checkTitle({ title: (await page.title()) || '', session });
-
-        switch (label) {
-            case LABEL_SEARCH:
-                await handleSearch({ page, url, requestQueue });
-                break;
-            case LABEL_PRODUCT:
-                await handleProductPage({ request, page, requestQueue });
-                break;
-            case LABEL_OFFER: {
-                const items = await handleOffersPage({
-                    request,
-                    page,
-                    keyword,
-                    requestQueue,
-                });
-                await Apify.pushData(items);
-                if (offersPerProduct) {
-                    offersPerProduct = items.reduce((acc, el, index, arr) => {
-                        acc[el.ASIN] = arr.filter((el2) => el2.ASIN === el.ASIN).length;
-                        return acc;
-                    }, offersPerProduct);
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }
+    await requestQueue.addRequest({ url: `https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${input.keyword.keyword}`,
+        userData: { label: 'START' } });
 
     const crawler = new Apify.PuppeteerCrawler({
-        requestList,
         requestQueue,
         proxyConfiguration,
+        maxConcurrency: 1,
         useSessionPool: true,
-        persistCookiesPerSession: true,
         sessionPoolOptions: {
+            maxPoolSize: 30,
             sessionOptions: {
-                maxUsageCount: MAX_USAGE_COUNT,
-                maxErrorScore: ERROR_SCORE,
+                maxUsageCount: 5,
             },
         },
-        launchPuppeteerOptions: {
-            useChrome: true,
+        launchContext: {
+            // Chrome with stealth should work for most websites.
+            // If it doesn't, feel free to remove this.
+            stealth: true,
         },
-        maxConcurrency: MAX_CONCURRENCY,
-        handlePageFunction: handlePageFunction.bind(this),
-        handleFailedRequestFunction: handleFailedRequestFunction.bind(this),
+        handlePageFunction: async (context) => {
+            const { url, userData: { label } } = context.request;
+            log.info('Page opened.', { label, url });
+            switch (label) {
+                case 'START':
+                    return handleStart(context, requestQueue);
+                case 'PRODUCT':
+                    return handleProduct(context, requestQueue);
+                case 'OFFERS':
+                    return handleOffers(context, requestQueue, dataset);
+            }
+        },
+
     });
 
+    log.info('Starting the crawl.');
     await crawler.run();
-
-    if (await requestQueue.isFinished()) {
-        if (offersPerProduct) {
-            await offersPerProductDataset.pushData(offersPerProduct);
-        }
-    }
+    log.info('Crawl finished.');
 });
