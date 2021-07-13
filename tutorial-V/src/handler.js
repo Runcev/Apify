@@ -9,12 +9,14 @@ const {
 
 const env = Apify.getEnv();
 const { token } = env;
+/// don't hardcode taskId but take it from the input
 const { TASK_ID: taskId, OUTPUT_FORMAT: format } = require('../constants.json');
 
 const client = new ApifyClient({
     token,
 });
 
+/// place it in the constants file
 const POLL_INTERVAL = 10000;
 
 exports.handler = async function ({ memory, useClient, fields, maxItems }) {

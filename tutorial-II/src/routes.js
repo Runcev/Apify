@@ -19,6 +19,8 @@ exports.handleProduct = async (context, requestQueue) => {
 
     log.info('Collecting data enqueueing links to  offers page');
     //await sleep(3000);
+    /// code would be better if you used:
+    // if (!await page.$('#productTitle')) { do some stuff; return;}
     if (await page.$('#productTitle')) {
         const asin = request.url.split('/').pop();
         console.log(asin);
@@ -48,6 +50,8 @@ exports.handleProduct = async (context, requestQueue) => {
     }
 };
 
+/// add some blank lines to divide logical blocks of code tp make it more readable
+/// especially after variable definitions
 exports.handleOffers = async (context, requestQueue, dataset) => {
     const { request, page, session } = context;
 
@@ -55,6 +59,10 @@ exports.handleOffers = async (context, requestQueue, dataset) => {
     let formattedData;
     //await sleep(10000);
     console.log(request.url);
+
+    /// You haven't implemented pagination of the offers: in case there are more than 10 offers you need
+    /// to either lazy load them, or (better) use XHR requests to load all the offers
+    /// Also verify that you scraped the pinned offer
     if (await page.$('#aod-offer')) {
         const data = await page.$$eval('#aod-offer', (element) => {
             const scrapedData = [];
@@ -70,6 +78,7 @@ exports.handleOffers = async (context, requestQueue, dataset) => {
                     price,
                     sellerName,
                     shippingPrice,
+                    /// delete this blank line
 
                 });
             });
@@ -81,6 +90,7 @@ exports.handleOffers = async (context, requestQueue, dataset) => {
             });
             await dataset.pushData(formattedData);
         } else {
+            /// if there are no offers we just do nothing - don't push any data at all
             await dataset.pushData({ ...request.userData.data, orderInfo: 'not exist' });
         }
 
