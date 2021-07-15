@@ -4,7 +4,6 @@ const { handleProduct } = require('./src/handleProduct');
 const { handleOffers } = require('./src/handleOffers');
 const { handlePageOffers } = require('./src/handleOffers_Page');
 
-
 const { STORAGE_KEYS, DEFAULT_PROXY_GROUP, SEARCH_URL, LABELS } = require('./src/const')
 
 const { utils: { log } } = Apify;
@@ -18,7 +17,6 @@ Apify.main(async () => {
         groups: [DEFAULT_PROXY_GROUP],
 
     });
-
 
     log.info("Starting crawler with keyword: " + keyword);
 
@@ -63,7 +61,7 @@ Apify.main(async () => {
                 case LABELS.OFFERS_PAGE:
                     return handlePageOffers(context);
                 case LABELS.OFFERS:
-                    return handleOffers(context, statistics);
+                    return handleOffers(context);
             }
         },
         handleFailedRequestFunction: async ({ request }) => {
@@ -93,15 +91,16 @@ Apify.main(async () => {
     await crawler.run();
     log.info('Crawl finished.');
 
+
     const dataUrl = `https://api.apify.com/v2/datasets/${process.env.APIFY_DEFAULT_DATASET_ID}/items`;
     console.log(dataUrl);
 
-    // send email
-   /* await Apify.call('apify/send-mail', {
+   /* // send email
+    await Apify.call('apify/send-mail', {
         to: 'lukas@apify.com',
         subject: 'Kenyiz Vitalii. This is for the Apify Tutorials',
-        text: `The link to the dataset:
-    https://api.apify.com/v2/datasets/${process.env.APIFY_DEFAULT_DATASET_ID}/items`,
+        text: `The link to the dataset: ${dataUrl}`
+
     });*/
 
 });

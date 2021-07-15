@@ -2,9 +2,9 @@ const Apify = require('apify');
 
 const { STORAGE_KEYS } = require('./const');
 
-exports.handleOffers = async ({request, page}, statistics) => {
+exports.handleOffers = async ({request, page}) => {
 
-    const { title, url, description, keyword } = request.userData;
+    const { ASIN, title, url, description} = request.userData;
 
     // Get the all additional offers
     const offersInfos = await page.$$eval('#aod-offer',
@@ -35,7 +35,6 @@ exports.handleOffers = async ({request, page}, statistics) => {
                 title,
                 url,
                 description,
-                keyword,
                 sellerName,
                 price,
                 shippingPrice
@@ -43,11 +42,9 @@ exports.handleOffers = async ({request, page}, statistics) => {
         })
     );
 
-
-
-   const store = await Apify.openKeyValueStore();
+    const store = await Apify.openKeyValueStore();
 
     const previousState = await store.getValue(STORAGE_KEYS.STATE) || {};
-    const newState = { ...previousState, [request.userData.ASIN]: request.userData.data.offersCount+1 || 1 }
+    const newState = { ...previousState, [ASIN]: request.userData.data.offersCount+1 || 1 }
     await store.setValue(STORAGE_KEYS.STATE, newState);
 }

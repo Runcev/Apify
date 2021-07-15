@@ -3,7 +3,7 @@ const { LABELS } = require('./const')
 
 const { utils: { log } } = Apify;
 
-exports.handleProduct = async ({url, page, request, keyword, crawler: { requestQueue } }) => {
+exports.handleProduct = async ({page, request, crawler: { requestQueue }}) => {
 
     log.info('Collecting data enqueueing links to offers page');
 
@@ -29,21 +29,17 @@ exports.handleProduct = async ({url, page, request, keyword, crawler: { requestQ
 
         const offersUrl = `https://www.amazon.com/gp/offer-listing/${asin}`;
 
-
-
-
         await requestQueue.addRequest({
             url: offersUrl,
             userData: {
                 label: LABELS.OFFERS_PAGE,
-                ASIN: asin,
+                asin,
                 data: {
                     url: request.url,
                     title: title,
                     description: description.join('\n'),
-                    keyword,
                 },
             }
-        }, { forefront: true });
+        });
     }
 };
