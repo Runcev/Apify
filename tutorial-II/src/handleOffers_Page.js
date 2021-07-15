@@ -5,6 +5,7 @@ const { LABELS: { OFFERS } } = require('./const');
 exports.handlePageOffers = async ({ page, request, crawler: { requestQueue } }) => {
 
     const { title, url, description, keyword } = request.userData.data;
+    const { ASIN } = request.userData;
 
     const isLoaded = await page.waitForSelector('#titleSection #productTitle');
     if (!isLoaded) throw new Error('Page is blocked or not loaded!');
@@ -47,17 +48,15 @@ exports.handlePageOffers = async ({ page, request, crawler: { requestQueue } }) 
         for (let i = 1; i <= pageCount; i++) {
             await requestQueue.addRequest(
                 {
-                    url: `https://www.amazon.com/gp/aod/ajax/ref=aod_page_${i}?asin=${request.userData.ASIN}&pc=dp&isonlyrenderofferlist=true&pageno=${i}`,
+                    url: `https://www.amazon.com/gp/aod/ajax/ref=aod_page_${i}?asin=${ASIN}&pc=dp&isonlyrenderofferlist=true&pageno=${i}`,
                     userData: {
                         label: OFFERS,
-                        ASIN: request.userData.ASIN,
+                        ASIN: ASIN,
                         title,
                         url,
                         description,
                         keyword,
-                        data: {
-                            offersCount: offersCount.split(' ')[0] - 0,
-                        }
+                        offersCount: offersCount.split(' ')[0] - 0,
                     },
                 },
                 { forefront: true }

@@ -33,7 +33,7 @@ exports.handleProduct = async ({page, request, crawler: { requestQueue }}) => {
             url: offersUrl,
             userData: {
                 label: LABELS.OFFERS_PAGE,
-                asin,
+                ASIN: asin,
                 data: {
                     url: request.url,
                     title: title,

@@ -95,12 +95,12 @@ Apify.main(async () => {
     const dataUrl = `https://api.apify.com/v2/datasets/${process.env.APIFY_DEFAULT_DATASET_ID}/items`;
     console.log(dataUrl);
 
-   /* // send email
+    // send email
     await Apify.call('apify/send-mail', {
         to: 'lukas@apify.com',
         subject: 'Kenyiz Vitalii. This is for the Apify Tutorials',
         text: `The link to the dataset: ${dataUrl}`
 
-    });*/
+    });
 
 });
