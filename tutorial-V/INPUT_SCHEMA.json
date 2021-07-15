@@ -1,33 +1,42 @@
 {
-  "title": "Input schema for the export-csv actor.",
+  "title": "Actor input schema",
+  "description": "This is actor input schema",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
     "memory": {
       "title": "Memory",
       "type": "integer",
-      "description": "Memory for call new actor",
-      "default": 4096
+      "description": "Calls the main actor with this amount of memory",
+      "default": 1024,
+      "editor": "number",
+      "prefill": 1024,
+      "maximum": 4096,
+      "minimum": 1024
     },
     "useClient": {
-      "title": "UseClient",
+      "title": "Use API client",
       "type": "boolean",
-      "description": "useClient option for called actor",
-      "default": false
+      "description": "Use API client or not",
+      "default": true,
+      "editor": "checkbox"
     },
     "fields": {
-      "title": "Fields",
+      "title": "Required fields",
       "type": "array",
-      "description": "Fields which will be output to csv",
-      "default": ["title", "url", "fullPrice"],
-      "editor": "json"
+      "description": "Fields will be in the saved dataset",
+      "default": ["title", "url", "price"],
+      "prefill": ["title", "url", "price"],
+      "editor": "stringList"
     },
     "maxItems": {
-      "title": "MaxItems",
+      "title": "Max saved items",
       "type": "integer",
-      "description": "Max items of called actor result",
-      "default": 10
+      "description": "Max amount of item to be saved",
+      "default": 10,
+      "prefill": 10,
+      "editor": "number"
     }
   },
-  "required": ["memory", "useClient", "fields", "maxItems"]
+  "required": []
 }

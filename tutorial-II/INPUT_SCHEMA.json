@@ -7,8 +7,8 @@
         "keyword": {
             "title": "Keyword",
             "type": "string",
-            "description": "Keyword",
-            "prefill": "iPhone 12",
+            "description": "Search keyword",
+            "prefill": "iPhone",
             "editor": "textfield"
         }
     },

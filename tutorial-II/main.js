@@ -1,26 +1,37 @@
 const Apify = require('apify');
-const { handleStart, handleProduct, handleOffers } = require('./src/routes');
+const { handleStart, handleProduct, handleOffers, handlePageOffers } = require('./src/routes');
+const { STORAGE_KEYS, DEFAULT_PROXY_GROUP, SEARCH_URL, LABELS } = require('./src/const')
 
 const { utils: { log } } = Apify;
 
 Apify.main(async () => {
-    const dataset = await Apify.openDataset('Amazon-scrape-lesson-2');
     const requestQueue = await Apify.openRequestQueue();
-    const input = await Apify.getInput();
+    const { keyword } = await Apify.getInput();
+
     const proxyConfiguration = await Apify.createProxyConfiguration({
         countryCode: 'US',
+        groups: [DEFAULT_PROXY_GROUP],
+
     });
-    await requestQueue.addRequest({ url: `https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${input.keyword}`,
-        userData: { label: 'START' } });
+
+    log.info("Starting crawler with keyword: " + keyword);
+
+    //Getting start
+    await requestQueue.addRequest({
+        url: `${SEARCH_URL.searchUrl}${keyword}`,
+        userData: {
+            label: LABELS.START
+        }
+    });
 
     const crawler = new Apify.PuppeteerCrawler({
-        maxRequestsPerCrawl: 50,
         requestQueue,
         proxyConfiguration,
         maxConcurrency: 1,
         useSessionPool: true,
+        persistCookiesPerSession: true,
         sessionPoolOptions: {
-            maxPoolSize: 30,
+            maxPoolSize: 100,
             sessionOptions: {
                 maxUsageCount: 5,
             },
@@ -28,24 +39,58 @@ Apify.main(async () => {
         launchContext: {
             // Chrome with stealth should work for most websites.
             // If it doesn't, feel free to remove this.
+            useChrome: false,
             stealth: true,
+            launchOptions: {
+                headless: false,
+            },
+
         },
         handlePageFunction: async (context) => {
             const { url, userData: { label } } = context.request;
             log.info('Page opened.', { label, url });
             switch (label) {
-                case 'START':
-                    return handleStart(context, requestQueue);
-                case 'PRODUCT':
-                    return handleProduct(context, requestQueue);
-                case 'OFFERS':
-                    return handleOffers(context, requestQueue, dataset);
+                case LABELS.START:
+                    return handleStart(context);
+                case LABELS.PRODUCT:
+                    return handleProduct(context);
+               /* case LABELS.OFFERS_PAGE:
+                    return handlePageOffers(context);*/
+                case LABELS.OFFERS:
+                    return handleOffers(context);
             }
         },
-
+        handleFailedRequestFunction: async ({ request }) => {
+            log.error(`Request ${request.url} failed too many times`);
+            await Apify.pushData({
+                '#debug': Apify.utils.createRequestDebugInfo(request),
+            });
+        },
     });
+
+
+    const showStats = setInterval(async () => {
+        const stats = await Apify.getValue(STORAGE_KEYS.STATE)
+        console.log(stats);
+        if (await requestQueue.isFinished()) {
+            clearInterval(showStats);
+        }
+    }, STORAGE_KEYS.STATS_INTERVAL);
+
+   /* Apify.events.on('migrating', () => {
+        Apify.setValue(STORAGE_KEYS.STATE, stats)
+    });*/
 
     log.info('Starting the crawl.');
     await crawler.run();
     log.info('Crawl finished.');
+
+    // send email
+   /* await Apify.call('apify/send-mail', {
+        to: 'lukas@apify.com',
+        subject: 'Kenyiz Vitalii. This is for the Apify Tutorials',
+        text: `The link to the dataset:
+    https://api.apify.com/v2/datasets/${process.env.APIFY_DEFAULT_DATASET_ID}/items`,
+    });*/
+
 });
