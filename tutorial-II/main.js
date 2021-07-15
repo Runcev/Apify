@@ -1,5 +1,10 @@
 const Apify = require('apify');
-const { handleStart, handleProduct, handleOffers, handlePageOffers } = require('./src/routes');
+const { handleStart } = require('./src/handleStart');
+const { handleProduct } = require('./src/handleProduct');
+const { handleOffers } = require('./src/handleOffers');
+const { handlePageOffers } = require('./src/handleOffers_Page');
+
+
 const { STORAGE_KEYS, DEFAULT_PROXY_GROUP, SEARCH_URL, LABELS } = require('./src/const')
 
 const { utils: { log } } = Apify;
@@ -13,6 +18,7 @@ Apify.main(async () => {
         groups: [DEFAULT_PROXY_GROUP],
 
     });
+
 
     log.info("Starting crawler with keyword: " + keyword);
 
@@ -54,10 +60,10 @@ Apify.main(async () => {
                     return handleStart(context);
                 case LABELS.PRODUCT:
                     return handleProduct(context);
-               /* case LABELS.OFFERS_PAGE:
-                    return handlePageOffers(context);*/
+                case LABELS.OFFERS_PAGE:
+                    return handlePageOffers(context);
                 case LABELS.OFFERS:
-                    return handleOffers(context);
+                    return handleOffers(context, statistics);
             }
         },
         handleFailedRequestFunction: async ({ request }) => {
@@ -69,6 +75,12 @@ Apify.main(async () => {
     });
 
 
+    const statistics = (await Apify.getValue(STORAGE_KEYS.STATE)) || {};
+
+    Apify.events.on('migrating', () => {
+        Apify.setValue(STORAGE_KEYS.STATE, statistics)
+    });
+
     const showStats = setInterval(async () => {
         const stats = await Apify.getValue(STORAGE_KEYS.STATE)
         console.log(stats);
@@ -77,13 +89,12 @@ Apify.main(async () => {
         }
     }, STORAGE_KEYS.STATS_INTERVAL);
 
-   /* Apify.events.on('migrating', () => {
-        Apify.setValue(STORAGE_KEYS.STATE, stats)
-    });*/
-
     log.info('Starting the crawl.');
     await crawler.run();
     log.info('Crawl finished.');
+
+    const dataUrl = `https://api.apify.com/v2/datasets/${process.env.APIFY_DEFAULT_DATASET_ID}/items`;
+    console.log(dataUrl);
 
     // send email
    /* await Apify.call('apify/send-mail', {
